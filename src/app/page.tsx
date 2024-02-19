@@ -4,7 +4,7 @@ import Layout from "@/app/layout";
 import * as React from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Calendar } from "@/components/calendar";
+import { Calendar } from "@/components/ui/calendar";
 
 import { ClockIcon } from "@radix-ui/react-icons";
 
