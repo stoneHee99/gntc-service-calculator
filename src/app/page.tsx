@@ -6,11 +6,26 @@ import * as React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Calendar } from "@/components/ui/calendar";
 
-import { ClockIcon } from "@radix-ui/react-icons";
+import {
+  ClockIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "@radix-ui/react-icons";
 
 export default function Home() {
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+  const [date, setDate] = React.useState<Date | undefined>(undefined);
   const referenceDate = new Date(2024, 5, 30);
+  const [currentYear, setCurrentYear] = React.useState(
+    new Date().getFullYear()
+  );
+
+  const changeYear = (offset: number) => {
+    setCurrentYear(currentYear + offset);
+    if (date) {
+      const newDate = new Date(date.setFullYear(currentYear + offset));
+      setDate(newDate);
+    }
+  };
 
   const calculateDifference = (selectedDate: Date) => {
     const difference = referenceDate.getTime() - selectedDate.getTime();
@@ -31,12 +46,26 @@ export default function Home() {
               : "날짜를 선택하시면 2024년 6월 30일 기준 근속 일수가 계산됩니다."}
           </AlertDescription>
         </Alert>
+        <div className="flex justify-center items-center my-4">
+          <ChevronLeftIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => changeYear(-1)}
+          />
+          <span className="mx-4">{currentYear}년</span>
+          <ChevronRightIcon
+            className="h-6 w-6 cursor-pointer"
+            onClick={() => changeYear(1)}
+          />
+        </div>
         <div className="my-8">
           <Calendar
             mode="single"
             selected={date}
             onSelect={setDate}
             className="rounded-md border shadow mx-auto w-fit"
+            month={
+              new Date(currentYear, date?.getMonth() ?? new Date().getMonth())
+            }
           />
         </div>
       </main>
