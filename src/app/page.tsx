@@ -11,20 +11,56 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 import {
   ClockIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  CalendarIcon,
 } from "@radix-ui/react-icons";
 import { Button } from "@/components/ui/button";
 
+import { cn } from "@/lib/utils";
+import { addDays, format } from "date-fns";
+import { DateRange } from "react-day-picker";
+
 export default function Home() {
   const [date, setDate] = React.useState<Date | undefined>(undefined);
+  const [datesOff, setDatesOff] = React.useState<(DateRange | undefined)[]>([]);
   const referenceDate = new Date(2024, 5, 30);
   const [currentYear, setCurrentYear] = React.useState(
     new Date().getFullYear()
   );
+
+  const addNewDateOff = () => {
+    setDatesOff([
+      ...datesOff,
+      { from: new Date(), to: addDays(new Date(), 5) },
+    ]);
+  };
+
+  const removeDateOff = (index: number) => {
+    const newDatesOff = [...datesOff];
+    newDatesOff[index] = undefined;
+    setDatesOff(newDatesOff.filter((item) => item !== undefined));
+  };
+
+  const calculateDifference = (selectedDate: Date) => {
+    let difference = referenceDate.getTime() - selectedDate.getTime();
+    datesOff.forEach((dateRange) => {
+      if (dateRange && dateRange.from && dateRange.to) {
+        difference -= dateRange.to.getTime() - dateRange.from.getTime();
+      }
+    });
+    return Math.round(difference / (1000 * 60 * 60 * 24));
+  };
+
+  const dateDifference = date ? calculateDifference(date) : "";
 
   const changeYear = (offset: number) => {
     const newYear = currentYear + offset;
@@ -46,14 +82,6 @@ export default function Home() {
     setDate(month);
     setCurrentYear(month.getFullYear());
   };
-
-  const calculateDifference = (selectedDate: Date) => {
-    const difference = referenceDate.getTime() - selectedDate.getTime();
-    return Math.round(difference / (1000 * 60 * 60 * 24));
-  };
-
-  const dateDifference = date ? calculateDifference(date) : "";
-
   return (
     <Layout>
       <main className="flex p-10 flex-col">
@@ -88,14 +116,27 @@ export default function Home() {
             }
             onMonthChange={handleMonthChangeFromPicker}
           />
-          <div className="flex justify-center my-8">
+          <div className="flex justify-center my-20">
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="item-1">
                 <AccordionTrigger>
                   봉사를 쉬신 기간이 있으신가요?
                 </AccordionTrigger>
                 <AccordionContent className="mx-auto">
-                  <Button>추가하기</Button>
+                  <Button onClick={addNewDateOff}>기간 추가</Button>
+                  {datesOff.map((dateRange, index) => (
+                    <div key={index}>
+                      <DatePickerWithRange
+                        date={dateRange}
+                        onDateChange={(newRange) => {
+                          const newDatesOff = [...datesOff];
+                          newDatesOff[index] = newRange;
+                          setDatesOff(newDatesOff);
+                        }}
+                      />
+                      <Button onClick={() => removeDateOff(index)}>X</Button>
+                    </div>
+                  ))}
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -103,5 +144,34 @@ export default function Home() {
         </div>
       </main>
     </Layout>
+  );
+}
+
+interface DatePickerWithRangeProps {
+  date: DateRange | undefined;
+  onDateChange: (newRange: DateRange | undefined) => void;
+}
+
+function DatePickerWithRange({ date, onDateChange }: DatePickerWithRangeProps) {
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant={"outline"}
+          className={cn(
+            "w-[300px] justify-start text-left font-norma mt-2 mr-2",
+            !date && "text-muted-foreground"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date && date.from && date.to
+            ? `${date.from.toDateString()} - ${date.to.toDateString()}`
+            : "날짜를 선택하세요"}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <Calendar mode="range" selected={date} onSelect={onDateChange} />
+      </PopoverContent>
+    </Popover>
   );
 }
