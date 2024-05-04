@@ -20,11 +20,24 @@ export default function Home() {
   );
 
   const changeYear = (offset: number) => {
-    setCurrentYear(currentYear + offset);
-    if (date) {
-      const newDate = new Date(date.setFullYear(currentYear + offset));
-      setDate(newDate);
-    }
+    const newYear = currentYear + offset;
+    setCurrentYear(newYear);
+
+    const newDate = new Date(date || new Date());
+    newDate.setFullYear(newYear);
+    setDate(newDate);
+  };
+
+  const handleMonthChange = (offset: number) => {
+    const newDate = new Date(date || new Date());
+    newDate.setMonth(newDate.getMonth() + offset);
+    setDate(newDate);
+    setCurrentYear(newDate.getFullYear());
+  };
+
+  const handleMonthChangeFromPicker = (month: Date) => {
+    setDate(month);
+    setCurrentYear(month.getFullYear());
   };
 
   const calculateDifference = (selectedDate: Date) => {
@@ -66,6 +79,7 @@ export default function Home() {
             month={
               new Date(currentYear, date?.getMonth() ?? new Date().getMonth())
             }
+            onMonthChange={handleMonthChangeFromPicker}
           />
         </div>
       </main>
