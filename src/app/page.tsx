@@ -54,9 +54,22 @@ export default function Home() {
     let difference = referenceDate.getTime() - selectedDate.getTime();
     datesOff.forEach((dateRange) => {
       if (dateRange && dateRange.from && dateRange.to) {
-        difference -= dateRange.to.getTime() - dateRange.from.getTime();
+        const overlapStart = Math.max(
+          dateRange.from.getTime(),
+          selectedDate.getTime()
+        );
+        const overlapEnd = Math.min(
+          dateRange.to.getTime(),
+          referenceDate.getTime()
+        );
+
+        if (overlapStart < overlapEnd) {
+          const overlapDays = overlapEnd - overlapStart;
+          difference -= overlapDays;
+        }
       }
     });
+
     return Math.round(difference / (1000 * 60 * 60 * 24));
   };
 
