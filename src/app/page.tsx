@@ -4,6 +4,12 @@ import Layout from "@/app/layout";
 import * as React from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import { Calendar } from "@/components/ui/calendar";
 
 import {
@@ -11,6 +17,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@radix-ui/react-icons";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [date, setDate] = React.useState<Date | undefined>(undefined);
@@ -81,6 +88,18 @@ export default function Home() {
             }
             onMonthChange={handleMonthChangeFromPicker}
           />
+          <div className="flex justify-center my-8">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>
+                  봉사를 쉬신 기간이 있으신가요?
+                </AccordionTrigger>
+                <AccordionContent className="mx-auto">
+                  <Button>추가하기</Button>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
         </div>
       </main>
     </Layout>
