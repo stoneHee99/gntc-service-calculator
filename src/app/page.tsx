@@ -32,6 +32,7 @@ import { DateRange } from "react-day-picker";
 export default function Home() {
   const [date, setDate] = React.useState<Date | undefined>(undefined);
   const [datesOff, setDatesOff] = React.useState<(DateRange | undefined)[]>([]);
+  const [message, setMessage] = React.useState<string | null>(null);
   const referenceDate = new Date(2024, 5, 30);
   const [currentYear, setCurrentYear] = React.useState(
     new Date().getFullYear()
@@ -95,6 +96,22 @@ export default function Home() {
     setDate(month);
     setCurrentYear(month.getFullYear());
   };
+
+  React.useEffect(() => {
+    if (date) {
+      const totalDays = calculateDifference(date);
+      const years = totalDays / 365;
+      const fullYears = Math.floor(years / 5) * 5; // 가장 가까운 5년 단위 계산
+      if (fullYears > 0) {
+        setMessage(`축하합니다 ${fullYears}년 근속 시상 대상자입니다 🎉`);
+      } else {
+        setMessage("아쉽게도 근속 시상 대상자가 아닙니다.");
+      }
+    } else {
+      setMessage(null); // 초기 메시지 상태를 클리어
+    }
+  }, [date]);
+
   return (
     <Layout>
       <main className="flex p-10 flex-col">
@@ -105,6 +122,8 @@ export default function Home() {
             {date
               ? `선택하신 날짜를 기준으로 ${dateDifference}일 동안 근속하셨습니다.`
               : "날짜를 선택하시면 2024년 6월 30일 기준 근속 일수가 계산됩니다."}
+            <br />
+            <span className="font-bold">{message ? message : ""}</span>
           </AlertDescription>
         </Alert>
         <div className="flex justify-center items-center my-4">
